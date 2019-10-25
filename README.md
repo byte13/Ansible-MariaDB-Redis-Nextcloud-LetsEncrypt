@@ -8,7 +8,7 @@ If you want to run it on a two tiers Virtual Private Cloud (VPC) in AWS of on a 
 * [byte13/Terraform-AWS-TwoTiersVPC](https://github.com/byte13/Terraform-AWS-TwoTiersVPC)
 * [byte13/Terraform-Azure-TwoTiersRG](https://github.com/byte13/Terraform-Azure-TwoTiersRG)
 
-## Please, read carefully this REAMDE file up to the end !
+## Please, read carefully this README file up to the end !
 It contains crucial information regarding protection of 
 secrets set during installation.
 
