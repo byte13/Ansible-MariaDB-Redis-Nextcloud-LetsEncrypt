@@ -1,0 +1,27 @@
+---
+# vars file for mariadb
+nc_dbname: "nextcloud"
+nc_dbadmin: "root"
+
+# The following values are set in an encrypted vault
+# MariaDB username for Nextcloud to connect to MariaDB
+nc_dbuser: "{{ vault_nc_dbuser }}"
+# MariaDB password for Nextcloud to connect to MariaDB
+nc_dbuserpassword: "{{ vault_nc_dbuserpassword }}"
+# Next variable required only if MariaDB is managed remotely
+# nc_dbadminpassword: "{{ vault_nc_dbadminpassword }}"
+#nc_maildomain: "{{ vault_nc_maildomain }}"
+
+# The following variables should be passed as command line arguments
+# using the following syntax from parent directory:
+# Run the playbook to install Nextcloud :
+#    ansible-playbook --ssh-common-args='-o StrictHostKeyChecking=no' \
+#                     -i '${var.Ansible-PlayDir}/Frontend-servers_inventory' -l AWS_Nextcloud \
+#                     --extra-vars 'nc_dbserver=<FQDN to be used to connect to MariaDB service> \
+#                                   nc_datadir=<Nextcloud data directory> \
+#                                   nc_version=<Version of Nextcloud to be installed> \
+#                                   nc_trusteddomain=<Public FQDN used to access Nextcloud service> \
+#                                   le_email=<e-mail to be used for Let's Encrypt to send notifications>' \
+#                     --vault-id redis@<vault password | file containing the password | prompt> \
+#                     --vault-id nc@$<vault password | file containing the password | prompt> \
+#                     Linux_Install-NextCloud_with-roles.yml

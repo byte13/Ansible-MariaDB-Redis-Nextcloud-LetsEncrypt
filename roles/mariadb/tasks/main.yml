@@ -1,0 +1,132 @@
+---
+# tasks file for mariadb
+#- name: Include secrets variables from roles/nextcloud/vars/nc_vault.yml
+- include_vars: roles/nextcloud/vars/nc_vault.yml
+
+# Installation of PyMySQL 
+- name: "Install python3, PyMySQL and python-pip"
+  apt:
+    name: ["python", "python-pymysql", "python3", "python3-pymysql"]
+    state: latest
+    update_cache: yes
+    autoremove: yes
+
+# Purge mariadb installation
+- name: "Purge MariaDB server and client"
+  apt:
+    name: ["mariadb-server", "mariadb-client"]
+    state: absent
+    purge: yes
+    update_cache: yes
+    autoremove: yes
+
+# Installation of MariaDB
+- name: "Install MariaDB server and client"
+  apt:
+    name: ["mariadb-server", "mariadb-client"]
+    state: latest
+    update_cache: yes
+    autoremove: yes
+
+- name: "Ensure MariaDB is started"
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Initialize variables
+  shell: echo "false"
+  register: installed
+
+# Edit /etc/mysql/my.cnf to ensure proper setup for Nextcloud 
+#    - Ensure the following parameters in /etc/mysql/my.cnf :
+#      character-set-server = utf8mb4
+#      collation-server = utf8mb4_general_ci
+#      transaction_isolation = READ-COMMITTED
+#      binlog_format = ROW
+- name: setup mariadb configuration file for Nextcloud 
+#  blockinfile:
+#    path: /etc/mysql/my.cnf 
+#    state:  present
+#    create: yes
+#    backup: yes
+#    marker: "# {mark} Edited using Ansible blockinfile" 
+#    insertafter: "\\[mysqld\\]"
+#    content: |
+#      character-set-server = utf8mb4
+#      collation-server = utf8mb4_general_ci
+#      transaction_isolation = READ-COMMITTED
+#      binlog_format = ROW
+# Alternative : replace the entire original file 
+  copy:
+    src: "{{ role_path }}/files/my.cnf"
+    dest: /etc/mysql/my.cnf
+    backup: yes
+    force: yes
+  notify:
+    - restart mariadb
+
+#- name: "Remove all anonymous accounts in MariaDB"
+- name: Remove all anonymous accounts in MariaDB 
+  mysql_user:
+    name: ''
+    host_all: yes
+    state: absent
+    #login_host:        "{{ nc_dbserver }}"
+    login_unix_socket: "/var/run/mysqld/mysqld.sock"
+    login_user:        "{{ nc_dbadmin }}"
+    #login_password:    "{{ nc_dbadminpassword }}"
+
+# Initialize database
+#   command: "mysql -h {{ nc_dbserver }} -u {{ nc_dbadmin }} -p {{ nc_dbadminpassword }} -e 'CREATE DATABASE nextcloud CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci; CREATE USER '{{ nc_dbuser }}'@'{{FE_IPaddress}}' identified by '{{ nc_dbuserpassword }}'; GRANT ALL PRIVILEGES on nextcloud.* to {{ nc_dbuser }}@<IP address>; FLUSH privileges;'"
+# DB client hostname could be : {{ ansible_facts['hostname'] }} or {{ ansible_facts['fqdn'] }}
+- name: Create Nextcloud database
+  mysql_db:
+    name:              "{{ nc_dbname }}"
+    state:             present
+    collation:         "utf8mb4_general_ci"
+    encoding:          "utf8mb4"
+    #login_host:        "localhost"
+    #login_host:        "{{ nc_dbserver }}"
+    login_unix_socket: "/var/run/mysqld/mysqld.sock"
+    login_user:        "{{ nc_dbadmin }}"
+    #login_password:    "{{ nc_dbadminpassword }}"
+
+# - name: Create Nextcloud user account and grant all privileges on Nextcloud database
+# With client IP
+- name: Create user account with Nextcloud server IPv4 address 
+  mysql_user:
+    name:              "{{ nc_dbuser }}"
+    host:              "{{ nc_serverPrivIP }}"
+    password:          "{{ nc_dbuserpassword }}"
+    priv:              "{{ nc_dbname }}.*:ALL"
+    update_password:   always
+    state:             present
+    login_unix_socket: "/var/run/mysqld/mysqld.sock"
+    login_user:        "{{ nc_dbadmin }}"
+    #login_password:    "{{ nc_dbadminpassword }}"
+    #login_host:        "{{ nc_dbserver }}"
+    #append_privs:      yes
+    #priv:              "{{ item }}"
+    #with_items:
+    #- "{{ nc_dbname }}.*:ALL"
+     
+# With client FQDN 
+- name: Create user account with Nextcloud server FQDN 
+  mysql_user:
+    name:              "{{ nc_dbuser }}"
+    host:              "{{ nc_serverPrivFQDN }}"
+    password:          "{{ nc_dbuserpassword }}"
+    update_password:   always
+    state:             absent
+    login_unix_socket: "/var/run/mysqld/mysqld.sock"
+    login_user:        "{{ nc_dbadmin }}"
+    #login_password:    "{{ nc_dbadminpassword }}"
+    #login_host:        "{{ nc_dbserver }}"
+    #append_privs:      yes
+    #priv:              "{{ nc_dbname }}.*:ALL"
+    priv:              "{{ item }}"
+  with_items:
+    - "{{ nc_dbname }}.*:ALL"
+  notify:
+    - restart mariadb

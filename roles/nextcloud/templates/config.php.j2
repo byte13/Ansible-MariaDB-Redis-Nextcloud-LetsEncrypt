@@ -1,0 +1,42 @@
+<?php
+$CONFIG = array (
+  'instanceid' => 'oct1tgqjqj93',
+  'passwordsalt' => 'jWdeP+gB1P0yrtTSlQxhR19vDJupYb',
+  'secret' => 'l1tMex7lt1osnHCdlAX//LGNpyU8117HHzD4fkP7pwnLXxaj',
+  'trusted_domains' =>
+  array (
+    0 => 'localhost',
+    1 => '{{ nc_trusteddomain }}',
+  ),
+  'datadirectory' => '{{ nc_datadir }}',
+  'overwrite.cli.url' => 'http://localhost',
+  'dbtype' => 'mysql',
+  'version' => '{{ nc_version }}',
+  'dbname' => '{{ nc_dbname }}',
+  'dbhost' => '{{ nc_dbserver }}',
+  'dbport' => '',
+  'dbtableprefix' => 'oc_',
+  'dbuser' => '{{ nc_dbuser }}',
+  'dbpassword' => '{{ nc_dbuserpassword }}',
+  'installed' => true,
+  'log_type' => 'file',
+  'logfile' => '{{ nc_logfile }}',
+  'memcache.local' => '\\OC\\Memcache\\Redis',
+  'redis' =>
+  array (
+    'host' => '{{ redis_unixsocket }}',
+    'port' => {{ redis_port }},
+    'dbindex' => 0,
+    'password' => '{{ redis_password }}',
+    'timeout' => 1.5,
+  ),
+  'maintenance' => false,
+  'theme' => '',
+  'loglevel' => 2,
+  'mail_smtpmode' => 'smtp',
+  'mail_smtpauthtype' => 'LOGIN',
+  'mail_from_address' => '{{ nc_mailfrom }}',
+  'mail_domain' => '{{ nc_maildomain }}',
+  'mail_smtpauth' => 1,
+  'mail_smtpsecure' => 'tls',
+);

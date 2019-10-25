@@ -1,0 +1,5 @@
+---
+# vars file for Apache-PHP-MySQL-client
+# Specifies PHP version; used to specify PHP modules to be installed
+# See Nextcloud documentation about pre-requisites for respective vesion
+php_version: "7.3"

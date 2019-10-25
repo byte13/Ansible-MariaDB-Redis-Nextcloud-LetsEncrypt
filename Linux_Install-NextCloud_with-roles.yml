@@ -1,0 +1,33 @@
+- hosts: Azure_MariaDB
+  #  remote_user: tas
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles: 
+    - mariadb 
+
+- hosts: Azure_Nextcloud
+  #  remote_user: tas
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles: 
+    - nextcloud 
+    - lets-encrypt 
+
+- hosts: AWS_MariaDB 
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles: 
+    - mariadb 
+
+- hosts: AWS_Nextcloud
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles: 
+    - nextcloud 
+    - lets-encrypt 

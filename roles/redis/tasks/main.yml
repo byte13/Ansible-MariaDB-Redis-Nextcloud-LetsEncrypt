@@ -1,0 +1,59 @@
+---
+# tasks file for redis
+# Include secrets variables from roles/redis/vars/redis_vault.yml
+- include_vars: roles/redis/vars/redis_vault.yml
+
+# Perform some system tuning suggested in redis logs
+- name: Set vm.overcommit_memory = 1 in /etc/sysctl.conf 
+  lineinfile:
+    dest: /etc/sysctl.conf 
+    line: vm.overcommit_memory = 1 
+    state: present
+
+- name: Set transparent_hugepage in /etc/rc.local 
+  lineinfile:
+    dest: /etc/rc.local
+    line: echo never > /sys/kernel/mm/transparent_hugepage/enabled 
+    state: present
+    create: yes
+
+# Make the aforementioned parameters active
+- name: Activate Set vm.overcommit_memory = 1
+  command: sysctl vm.overcommit_memory=1
+
+- name: Disable transparent_hugepage
+  command: echo never > /sys/kernel/mm/transparent_hugepage/enabled
+  notify:
+    - restart redis
+
+# Add required repository into sources list.
+- name: Add some repository
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+    update_cache: true
+
+# Installation of Redis 
+- name: Install Redis 
+  apt:
+    name:         ["redis-server"]
+    state:        present
+    update_cache: true
+
+# Include Apache execution account to Redis group
+- name: Adding www-data in redis group
+  user:
+    name:   www-data
+    groups: redis
+    append: yes
+
+# Upload redis configuration file
+- name: Configure Redis
+  template:
+    src:   redis.conf.j2
+    dest:   "{{ redis_configurationfile }}"
+    owner: root
+    group: root
+    mode:  0644
+  notify:
+    - start redis

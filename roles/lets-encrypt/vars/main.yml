@@ -1,0 +1,9 @@
+---
+# vars file for lets-enrypt
+le_certbot: "/usr/bin/certbot"
+le_rsakeysize: 2048
+#le_email: "user@dummy.dom"
+le_renewalfreq:
+   day:    "*"
+   hour:   23
+   minute: 0

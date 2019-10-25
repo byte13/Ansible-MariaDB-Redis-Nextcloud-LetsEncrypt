@@ -1,0 +1,26 @@
+---
+# vars file for redis
+#
+# Absolute path to Redis configuration file
+redis_configurationfile: /etc/redis/redis.conf
+
+# Redis TCP port to listen on. '0' means no TCP port if Unix socket, only is used.
+redis_port: 0
+
+# Absolute path to Unix socket used to communicate with local Redis instance. 
+redis_unixsocket: /var/run/redis/redis.sock
+
+# Permisions on Unix socket
+redis_unixsocketperm : 770
+
+# Max number of Redis clients
+redis_maxclients: 1000
+
+# Password to connect to Redis. 
+# Note the 'vault_' prefix indicating the the actual variable is kept in a vault.
+# In our example, the vault is roles/redis/vars/redis_vault.yml
+#     and has been encrypted using the following command :
+#          ansible-vault encrypt --vault-id redis@prompt roles/redis/vars/redis_vault.yml
+#     To edit the vault, use the following command :
+#          ansible-vault edit --vault-id redis@prompt roles/redis/vars/redis_vault.yml
+redis_password: "{{ vault_redis_password }}"

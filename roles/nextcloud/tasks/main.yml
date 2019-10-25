@@ -1,0 +1,223 @@
+---
+# tasks file for nextcloud
+#- name: Include secrets variables from roles/nextcloud/vars/nextcloud_vault.yml
+- include_vars: roles/nextcloud/vars/nc_vault.yml
+
+- name: Initialize variables
+  shell: echo "false"
+  register: installed
+
+- name: Check if Nextcloud already installed
+  become: yes
+  become_method: sudo
+  become_user: www-data
+  shell: "php /var/www/nextcloud/occ status | grep -i installed | awk '{print $3}'"
+  register: installed
+
+- name: Check if Nextcloud is initialized
+  debug:
+    msg: "Nextcloud already initialized"
+  when: 
+    - installed.stdout == "true"
+
+- name: Check if Nextcloud is NOT initialized
+  debug:
+    msg: "Nextcloud not initialized"
+  when: 
+    - installed.stdout != "true"
+
+# Installation of PyMySQL 
+#- name: "Install python3, PyMySQL and python-pip"
+#  apt:
+#    name: ["python3", "python3-pymysql", "python-pip"]
+#    state: latest
+#    update_cache: yes
+#    autoremove: yes
+
+#- name: "Install pyMySQL"
+#  command: "pip install PyMySQL"
+
+# Enable required Apache modules
+- name: Enable Apache modules required for Nextcloud
+  apache2_module:
+    name:  "{{ item }}"
+    state: present
+  with_items:
+    - "rewrite"
+    - "headers"
+    - "env"
+    - "dir"
+    - "mime"
+  notify:
+      - restart apache2
+
+# Create Nextcloud data and log directories 
+- name: "Create Nexcloud data directory {{ nc_datadir }}"
+  file:
+    path:  "{{ nc_datadir }}"
+    owner: root 
+    group: www-data
+    mode:  0770
+    state: directory
+
+- name: "Create .ocdata file {{ nc_datadirfile }}"
+  file:
+    path:  "{{ nc_datadirfile }}"
+    owner: root 
+    group: www-data
+    mode:  0660
+    state: touch
+
+- name: Create Nexcloud log directory
+  file:
+    path: "{{ nc_logdir }}"
+    owner: root 
+    group: www-data
+    mode:  0770
+    state: directory
+
+# Download Nextcloud kit and verify checksum
+- name: "Download Nextcloud {{ nc_version }} kit with checksum file (sha256) and compare"
+  get_url:
+    url:            "{{ nc_sourceurl }}/{{ nc_kit }}" 
+    dest:           "{{ nc_srvrootdir }}"
+    validate_certs: yes
+    checksum:       "sha256:{{ nc_sourceurl }}/{{ nc_kit }}.sha256"
+    mode:           0440
+  when: 
+    - installed.stdout != "true"
+
+# Extract files from archive
+- name: Extract files from kit 
+  unarchive:
+    src:  "{{ nc_srvrootdir }}/{{ nc_kit }}" 
+    dest: "{{ nc_srvrootdir }}" 
+    remote_src: yes
+  when: 
+    - installed.stdout != "true"
+
+# Change ownership of Nextcloud directory tree
+- name: Change directory tree ownership
+  file:
+    path:    "{{ nc_sitedir }}"
+    recurse: yes
+    owner:   "www-data"
+    group:   "www-data"
+    state:   directory
+
+# Remove kit
+- name: Remove kit
+  file:
+    path:  "{{ nc_srvrootdir }}/{{ nc_kit }}"
+    state: absent 
+ 
+# Next block assumes the the database and the owner account are already created on the server
+- name: Initialize Nextcloud database
+  become: yes
+  become_method: sudo
+  become_user: www-data
+  command: "php /var/www/nextcloud/occ maintenance:install --database=mysql --database-host={{ nc_dbserver }} --database-name={{ nc_dbname }} --database-user={{ nc_dbuser }} --database-pass={{ nc_dbuserpassword }} --admin-user={{ nc_ncadmin }} --admin-pass={{ nc_ncadminpassword }}"
+  args:
+    chdir: "{{ nc_sitedir }}"
+  when: 
+    - installed.stdout != "true"
+
+# Configure Nextcloud
+- name: Setup Nextcloud for Redis and MySQL
+#  template:
+#    src:    config.php.j2
+#    dest:    "{{ nc_configfile }}"
+#    owner:  www-data
+#    group:  www-data
+#    mode:   0640
+#    backup: yes
+  become: yes
+  become_method: sudo
+  become_user: www-data
+  command: "{{ item }}"
+  with_items:
+    - "php /var/www/nextcloud/occ -n db:convert-filecache-bigint"
+    - "php /var/www/nextcloud/occ config:system:set 'trusted_domains' '1' --value '{{ nc_trusteddomain }}'"
+    - "php /var/www/nextcloud/occ config:system:set 'datadirectory'     --value '{{ nc_datadir }}'"
+    - "php /var/www/nextcloud/occ config:system:set 'logfile'           --value '{{ nc_logfile }}'"
+    # Next 2 lines in a row fail. One of them, only, is OK. Don't know why, yet.
+    # Replaced by next blockinfile statement
+    #- "php /var/www/nextcloud/occ config:system:set 'memcache.local'    --value '\\OC\\Memcache\\Redis'"
+    #- "php /var/www/nextcloud/occ config:system:set 'memcache.locking'  --value '\\OC\\Memcache\\Redis'"
+    - "php /var/www/nextcloud/occ config:system:set 'redis' 'host'        --value '{{ redis_unixsocket }}'"
+    - "php /var/www/nextcloud/occ config:system:set 'redis' 'port'        --value '{{ redis_port }}'"
+    - "php /var/www/nextcloud/occ config:system:set 'redis' 'password'    --value '{{ redis_password }}'"
+    - "php /var/www/nextcloud/occ config:system:set 'redis' 'dbindex'     --value '0'"
+    # Next commands installs modules for GDPR compliance 
+    #- "php /var/www/nextcloud/occ app:install       'drop_account'"
+    #- "php /var/www/nextcloud/occ app:install       'data_request'"
+    #- "php /var/www/nextcloud/occ app:install       'terms_of_service'"
+    #- "php /var/www/nextcloud/occ app:update        --all"
+  #when: 
+    #- installed.stdout != "true"
+
+- name: Setup Nextcloud for memcache 
+  blockinfile:
+    path:   "{{ nc_configfile }}"
+    owner:  www-data
+    group:  www-data
+    mode:   0640
+    state:  present
+    create: yes
+    backup: yes
+    marker: "# {mark} Edited using Ansible blockinfile"
+    insertafter: "^[ \t\n\r\f\v]*\'logfile\'[ \t\n\r\f\v]+"
+    block: |
+      'memcache.local'   => '\\OC\\Memcache\\Redis',
+      'memcache.locking' => '\\OC\\Memcache\\Redis',
+
+# Configure PHP
+- name: Configure PHP
+  template:
+    src:    php.ini.j2  
+    dest:   "{{ item }}"
+    owner:  root
+    group:  root
+    mode:   0644
+    force:  yes
+    backup: yes
+  with_items: 
+    - "/etc/php/{{ php_version }}/apache2/php.ini"
+    - "/etc/php/{{ php_version }}/cli/php.ini" 
+    - "/etc/php/{{ php_version }}/fpm/php.ini"
+  #when: 
+  #  - installed.stdout != "true"
+
+# Disable default web site 
+- name: Disable default Apache web site
+  file:
+    path:  "/etc/apache2/sites-enabled/000-default.conf"
+    state: absent
+  when: 
+    - installed.stdout != "true"
+
+# Upload Apache site config for Nextcloud 
+- name: Setup Nextcloud web site 
+  template:
+    src:    apache_nextcloud_site.j2  
+    dest:    "{{ nc_siteconfdir }}/{{ nc_siteconffile }}"
+    owner:  root
+    group:  root
+    mode:   0640
+    force:  yes
+    backup: yes
+  #when: 
+    #- installed.stdout != "true"
+
+# Create soft link to enable the site
+- name: Enable Nextcloud web site
+  file:
+    path:  "/etc/apache2/sites-enabled/{{ nc_siteconffile }}"
+    src:   "{{ nc_siteconfdir }}/{{ nc_siteconffile }}"
+    owner: root 
+    group: root 
+    state: link
+  notify:
+    - restart redis
+    - restart apache2
+

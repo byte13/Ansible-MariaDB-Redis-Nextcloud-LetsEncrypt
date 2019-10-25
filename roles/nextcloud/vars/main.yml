@@ -1,0 +1,65 @@
+---
+# vars file for Nextcloud
+
+# Version of Nextcloud to be installed
+#nc_version: "16.0.4"
+# Name of the archive to be downloaded
+nc_kit: "nextcloud-{{ nc_version }}.tar.bz2"
+# Base URL of source archive
+nc_sourceurl: "https://download.nextcloud.com/server/releases"
+# Apache2 server root directory
+nc_srvrootdir: "/var/www"
+# Apache2 server ports configurtion file
+nc_srvportconffile: "/etc/apache2/ports.conf"
+# Nextcloud web site directory
+nc_sitedir: "{{ nc_srvrootdir }}/nextcloud"
+# Apache2 sites confiuration directory
+nc_siteconfdir: "/etc/apache2/sites-available"
+# Apache2 default web site configuration file
+nc_siteconffile: "000-default.conf"
+# Nextcloud configuration file
+nc_configfile: "/var/www/nextcloud/config/config.php" 
+# Nextcloud data files directory 
+nc_datadir: "/var/ncdata"
+# Nextcloud data files index file (?)
+nc_datadirfile: "{{ nc_datadir }}/.ocdata"
+# Nextcloud logs directory
+nc_logdir: "/var/log/nextcloud"
+# Nextcloud logfile
+nc_logfile: "{{ nc_logdir }}/nextcloud"
+# Flag file to check is Nextcloud is already initialized (not used , yet)
+#nc_dbinit_flag: "{{ nc_logdir }}/nc-db-initialized.flag"
+# Database server hostname (rather passed a command line argument --extra-vars...)
+#nc_dbserver: "dbsrv1"
+# Nextcloud database name
+nc_dbname: "nextcloud"
+
+# All the following values are retrieved from an Ansible vault
+# DNS FQDN of Nextcloud web site
+nc_trusteddomain: "{{ vault_nc_trusteddomain }}"
+# MariaDB connection account name used by Nextcloud
+nc_dbuser: "{{ vault_nc_dbuser }}"
+# MariaDB connection password used by Nextcloud
+nc_dbuserpassword: "{{ vault_nc_dbuserpassword }}"
+# Nextcloud application administrator account
+nc_ncadmin: "{{ vault_nc_ncadmin }}"
+# Nextcloud application administrator password
+nc_ncadminpassword: "{{ vault_nc_ncadminpassword }}"
+# Nextcloud application SMTP domain
+vault_nc_maildomain: "yourdomain.xyz"
+# Nextcloud application sender ( sender.name@yourdomain.xyz)
+vault_nc_mailfrom: "sender.name"
+
+# The following variables should be passed as command line arguments
+# using the following syntax from parent directory: 
+# Run the playbook to install Nextcloud :
+#   ansible-playbook --ssh-common-args='-o StrictHostKeyChecking=no' \
+#                    -i '${var.Ansible-PlayDir}/Frontend-servers_inventory' -l AWS_Nextcloud \
+#                    --extra-vars 'nc_dbserver=<FQDN to be used to connect to MariaDB service> \
+#                                  nc_datadir=<Nextcloud data directory> \
+#                                  nc_version=<Version of Nextcloud to be installed> \
+#                                  nc_trusteddomain=<Public FQDN used to access Nextcloud service> \
+#                                  le_email=<e-mail to be used for Let's Encrypt to send notifications>' \
+#                    --vault-id redis@<vault password | file containing the password | prompt> \
+#                    --vault-id nc@$<vault password | file containing the password | prompt> \
+#                    Linux_Install-NextCloud_with-roles.yml

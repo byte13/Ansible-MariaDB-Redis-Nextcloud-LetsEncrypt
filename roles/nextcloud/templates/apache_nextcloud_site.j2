@@ -1,0 +1,25 @@
+<VirtualHost *:80>
+    ServerName {{ nc_trusteddomain }}
+
+    ServerAdmin webmaster@localhost
+    DocumentRoot {{ nc_sitedir }} 
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    Alias /nextcloud {{ nc_sitedir }} 
+
+    <Directory {{ nc_sitedir }}/>
+        Options +FollowSymlinks
+        AllowOverride All
+
+       <IfModule mod_dav.c>
+           Dav off
+       </IfModule>
+
+       SetEnv HOME      {{ nc_sitedir }} 
+       SetEnv HTTP_HOME {{ nc_sitedir }} 
+
+    </Directory>
+
+</VirtualHost>

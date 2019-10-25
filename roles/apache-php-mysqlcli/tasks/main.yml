@@ -1,0 +1,19 @@
+---
+# tasks file for Apache-PHP-MySQL-client
+# Add required repository into sources list.
+- name: Add some repository
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+    update_cache: true
+
+# Installation of Apache, PHP and MySQL client 
+- name: "Install Apache2, PHP{{ php_version }} with various modules and MySQL client"
+  apt:
+    name: ["apache2", "libapache2-mod-php{{ php_version }}", "mariadb-client", "php{{ php_version }}-bz2", "php{{ php_version }}-curl", "php{{ php_version }}-fpm", "php{{ php_version }}-gd", "php{{ php_version }}-intl", "php{{ php_version }}-json", "php{{ php_version }}-mbstring", "php{{ php_version }}-mysql", "php{{ php_version }}-redis", "php{{ php_version }}-xml", "php{{ php_version }}-zip", "php-imagick", "php-dev", "libmcrypt-dev", "php-pear", "php{{ php_version }}-dom", "php{{ php_version }}-iconv", "php{{ php_version }}-igbinary", "php{{ php_version }}-ctype", "php{{ php_version }}-posix"]
+    state: latest
+    update_cache: yes
+    autoremove: yes
+
+- name: "Install php-mcrypt using pecl"
+  command: echo '' | sudo pecl install mcrypt-1.0.1

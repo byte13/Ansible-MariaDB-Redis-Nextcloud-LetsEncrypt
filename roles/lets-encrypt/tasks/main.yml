@@ -1,0 +1,71 @@
+---
+# tasks file for lets-enrypt
+# Install certbot
+- name: Install utilities for Ubuntu
+  apt: 
+    name: ["software-properties-common"]
+    state: latest
+    update_cache: yes
+
+# apt_repository seems to fail for universe repository. Let's use command statement instead 
+- name: Add universe reposipory 
+  command: "add-apt-repository universe"
+
+- name: Add apt repositories required for certbot
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    #- "universe"
+    - "ppa:certbot/certbot"
+
+- name: Install certbot for Ubuntu
+  apt: 
+    pkg:   ["certbot", "python-certbot-apache"] 
+    state: latest
+
+# Ensure web server listens on port 80/TCP
+#- name: Ensure web server listens on port 80/TCP 
+#  lineinfile:
+#    path: "{{ nc_srvportconffile }}"
+#    regexp: "^#[.]*Listen "
+#    line: "Listen 80"
+#    backup: yes
+
+# Enable Apache default web site (on port 80)
+- name: Enable Apache default web site
+  command: "a2ensite 000-default"
+  notify:
+    - restart apache2
+    
+# Install certificate
+- name: "Install certificate for {{ nc_trusteddomain }}" 
+  command: "{{ le_certbot }} -d {{ nc_trusteddomain }} --apache --noninteractive --agree-tos --email {{ le_email }} --rsa-key-size {{ le_rsakeysize }} --must-staple --staple-ocsp --hsts"
+  notify:
+    - restart apache2
+
+# Ensure port 80/TCP is disabled 
+- name: Ensure port 80/TCP is disabled 
+  lineinfile:
+    path: "{{ nc_srvportconffile }}"
+    regexp: "^[.]*Listen "
+    line: "# Listen 80"
+    backup: yes
+
+# Disable Apache default web site
+- name: Disable Apache default web site
+  command: "a2dissite 000-default"
+  notify:
+    - restart apache2
+
+# Set cron job for automatic renewal
+# Normally not required since v0.10.0
+#- name: Install renewal cron
+#    become: yes
+#    cron:
+#      name:   "Let's Encrypt Renewal"
+#      day:    "{{ le_renewalfreq.day }}"
+#      hour:   "{{ le_renewalfreq.hour }}"
+#      minute: "{{ le_renewalfreq.minute }}"
+#      job:    "{{ le_certbot }} renew --quiet"
