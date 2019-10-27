@@ -4,6 +4,7 @@
   become_method: sudo
   become_user: root
   roles: 
+  # - redis
     - mariadb 
 
 - hosts: Azure_Nextcloud
@@ -12,6 +13,8 @@
   become_method: sudo
   become_user: root
   roles: 
+    - apache-php-mysqlcli
+    - redis
     - nextcloud 
     - lets-encrypt 
 
@@ -21,6 +24,7 @@
   become_method: sudo
   become_user: root
   roles: 
+  # - redis
     - mariadb 
 
 - hosts: AWS_Nextcloud
@@ -29,5 +33,7 @@
   become_method: sudo
   become_user: root
   roles: 
+    - apache-php-mysqlcli
+    - redis
     - nextcloud 
     - lets-encrypt 

@@ -5,6 +5,7 @@
 redis_configurationfile: /etc/redis/redis.conf
 
 # Redis TCP port to listen on. '0' means no TCP port if Unix socket, only is used.
+# redis_port: 6379
 redis_port: 0
 
 # Absolute path to Unix socket used to communicate with local Redis instance. 

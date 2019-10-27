@@ -160,7 +160,7 @@ The following files contain the respective passphrase to unlock the vaults :
 Then, change the passphrase of each safe using the following command from the parent directory :
 ```
     $ ansible-vault rekey --vault-id redis@redisVault_pwd.txt --new-vault-id redis@prompt roles/redis/vars/redis_vault.yml
-    $ ansible-vault rekey --vault-id nc@redisVault_pwd.txt    --new-vault-id nc@prompt    roles/nc/vars/nc_vault.yml
+    $ ansible-vault rekey --vault-id nc@ncVault_pwd.txt    --new-vault-id nc@prompt    roles/nextcloud/vars/nc_vault.yml
 ```
 Note that you will be prompted for the new passphrase.\
 Then change the passphrase in repsective plain text file :
