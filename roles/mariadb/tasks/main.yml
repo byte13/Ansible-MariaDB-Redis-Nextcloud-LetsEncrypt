@@ -3,8 +3,8 @@
 #- name: Include secrets variables from roles/nextcloud/vars/nc_vault.yml
 - include_vars: roles/nextcloud/vars/nc_vault.yml
 
-# Installation of PyMySQL 
-- name: "Install python3 and python3-pip"
+# Installation or upgrade of PyMySQL 
+- name: "Install or upgrade python3 and python3-pip"
   apt:
     name: ["python3", "python3-pip"]
     state: latest
@@ -13,8 +13,8 @@
 
 # Install PyMySQL using PIP 
 - name: "Install PyMySQL using python3-pip"
-    pip:
-      name: PyMySQL
+  pip:
+    name: PyMySQL
 
 # Purge mariadb installation
 - name: "Purge MariaDB server and client"
