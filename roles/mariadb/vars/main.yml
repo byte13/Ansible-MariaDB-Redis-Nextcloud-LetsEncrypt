@@ -1,4 +1,7 @@
 ---
+# Force Ansible to use python3
+ansible_python_interpreter: "python3"
+
 # vars file for mariadb
 nc_dbname: "nextcloud"
 nc_dbadmin: "root"
