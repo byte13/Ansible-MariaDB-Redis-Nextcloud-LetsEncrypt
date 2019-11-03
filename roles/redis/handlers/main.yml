@@ -6,7 +6,7 @@
     state: started 
     enabled: yes
 
-- name: reloaded redis
+- name: reload redis
   service:
     name: redis
     state: reloaded

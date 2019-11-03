@@ -48,7 +48,7 @@ pidfile /var/run/redis/redis-server.pid
 # Accept connections on the specified port, default is 6379.
 # If port 0 is specified Redis will not listen on a TCP socket.
 #port 6379
-# Byte13 change as long as access to Redis over TCP/IP is not required
+# Byte13 set to 0 as long as access to Redis over TCP/IP is not required
 # Local Nextcloud connects over Unix sockets
 port {{ redis_port }} 
 
@@ -76,7 +76,7 @@ bind 127.0.0.1
 # on a unix socket when not specified.
 #
 # unixsocket /var/run/redis/redis.sock
-# Byte13 - Ensure socker path
+# Byte13 - Fix socket path
 unixsocket {{ redis_unixsocket }} 
 # unixsocketperm 700
 # Byte13 - Change socket permissions (include www-data in redis group)
