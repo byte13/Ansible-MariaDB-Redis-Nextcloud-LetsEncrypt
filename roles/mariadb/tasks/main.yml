@@ -4,7 +4,7 @@
 - include_vars: roles/nextcloud/vars/nc_vault.yml
 
 # Installation of PyMySQL 
-- name: "Install python3, PyMySQL and python-pip"
+- name: "Install python2, python3, PyMySQL"
   apt:
     name: ["python", "python-pymysql", "python3", "python3-pymysql"]
     state: latest
