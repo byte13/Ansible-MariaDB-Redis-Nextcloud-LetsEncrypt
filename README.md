@@ -17,6 +17,8 @@ secrets set during installation.
 2. Unlock the SSH private key using the following commands :
 ```
     $ ssh-agent
+    or
+    $ eval $(ssh-agent)
     $ ssh-add <path-to-the-private-key>
         ... when prompted enter the passphrase
 ```  
