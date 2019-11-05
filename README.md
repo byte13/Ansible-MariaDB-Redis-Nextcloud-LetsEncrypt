@@ -35,7 +35,7 @@ secrets set during installation.
 ```
 7. Syntax to run the playbook to install Nextcloud on frontend server :
 ``` 
-   $ ansible-playbook --ssh-common-args='-o StrictHostKeyChecking=no' -i '<your inventory file>' -l '<your group in inventory file>' --extra-vars 'nc_dbserver=<FQDN to be used to connect to MariaDB service> nc_datadir=<Nextcloud data directory> nc_version=<Version of Nextcloud to be installed> nc_trusteddomain=<Public FQDN used to access Nextcloud service> le_email=<e-mail to be used for Let's Encrypt to send notifications>' --vault-id redis@<redisVault_pwd.txt | prompt > --vault-id nc@<ncVault_pwd.txt | prompt> Linux_Install-NextCloud_with-roles.yml
+   $ ansible-playbook -i '<your inventory file>' -l '<your group in inventory file>' --extra-vars 'nc_dbserver=<FQDN to be used to connect to MariaDB service> nc_datadir=<Nextcloud data directory> nc_version=<Version of Nextcloud to be installed> nc_trusteddomain=<Public FQDN used to access Nextcloud service> le_email=<e-mail to be used for Let's Encrypt to send notifications>' --vault-id redis@<redisVault_pwd.txt | prompt > --vault-id nc@<ncVault_pwd.txt | prompt> Linux_Install-NextCloud_with-roles.yml
 ```
 
 ## Directory structure :
