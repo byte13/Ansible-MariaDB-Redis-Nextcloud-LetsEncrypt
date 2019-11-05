@@ -31,7 +31,7 @@ secrets set during installation.
 5. Edit the vaults containing secrets (see instructions below)
 6. Syntax to run the playbook to install MariaDB on backend server :
 ```
-   $ ansible-playbook --ssh-common-args='-o StrictHostKeyChecking=no' -i '<your inventory file>' -l '<your group in inventory file>' --extra-vars 'nc_serverPrivIP=<IPv4 address of the frontend server running Nextcloud> nc_serverPrivFQDN=<FQDN of the frontend server running Nextcloud>' --vault-id nc@<ncVault_pwd.txt | prompt> Linux_Install-NextCloud_with-roles.yml
+   $ ansible-playbook -i '<your inventory file>' -l '<your group in inventory file>' --extra-vars 'nc_serverPrivIP=<IPv4 address of the frontend server running Nextcloud> nc_serverPrivFQDN=<FQDN of the frontend server running Nextcloud>' --vault-id nc@<ncVault_pwd.txt | prompt> Linux_Install-NextCloud_with-roles.yml
 ```
 7. Syntax to run the playbook to install Nextcloud on frontend server :
 ``` 
