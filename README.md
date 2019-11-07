@@ -4,7 +4,7 @@ This set of Ansible roles install MariaDB, Redis and Nextcloud on Ubuntu.
 To install Ansible on Ubuntu, please follow instructions available there :
 * [Install Ansible on Ubuntu 18.04-LTS](https://linuxconfig.org/how-to-install-ansible-on-ubuntu-18-04-bionic-beaver-linux)
 
-If you want to run it on a two tiers Virtual Private Cloud (VPC) in AWS of on a two tiers Resource Group (RG) in Azure, you may be interrested in either of these :
+If you want to run it on a two tiers Virtual Private Cloud (VPC) in AWS or on a two tiers Resource Group (RG) in Azure, you may be interrested in either of those projects :
 * [byte13/Terraform-AWS-TwoTiersVPC](https://github.com/byte13/Terraform-AWS-TwoTiersVPC)
 * [byte13/Terraform-Azure-TwoTiersRG](https://github.com/byte13/Terraform-Azure-TwoTiersRG)
 
