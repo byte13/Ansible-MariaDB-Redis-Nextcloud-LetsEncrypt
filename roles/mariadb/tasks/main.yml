@@ -36,8 +36,8 @@
 
 # Installation of MariaDB
 - name: "Install MariaDB server and client"
-  apt: "{{ item }}"
-    name: 
+  apt:
+    name: "{{ item }}"
     state: latest
     update_cache: yes
     autoremove: yes
