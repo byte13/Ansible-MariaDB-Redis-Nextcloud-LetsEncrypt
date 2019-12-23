@@ -2,7 +2,7 @@
 # vars file for Nextcloud
 
 # Version of Nextcloud to be installed
-#nc_version: "16.0.4"
+nc_version: "17.0.2"
 # Name of the archive to be downloaded
 nc_kit: "nextcloud-{{ nc_version }}.tar.bz2"
 # Base URL of source archive
