@@ -13,9 +13,11 @@
 
 - name: Add apt repositories required for certbot
   apt_repository:
-    repo: ["ppa:certbot/certbot"]
+    repo: "{{ item }}"
     state: present
     update_cache: yes
+  loop:
+    - "ppa:certbot/certbot"
 
 - name: Install certbot for Ubuntu
   apt: 
