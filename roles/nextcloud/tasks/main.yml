@@ -42,7 +42,8 @@
   apache2_module:
     name:  "{{ item }}"
     state: present
-  with_items:
+  #with_items: for Ansible >= v2.9
+  loop:
     - "rewrite"
     - "headers"
     - "env"
@@ -135,7 +136,8 @@
   become_method: sudo
   become_user: www-data
   command: "{{ item }}"
-  with_items:
+  #with_items: for Ansible >= v2.9
+  loop:
     - "php /var/www/nextcloud/occ -n db:convert-filecache-bigint"
     - "php /var/www/nextcloud/occ config:system:set 'trusted_domains' '1' --value '{{ nc_trusteddomain }}'"
     - "php /var/www/nextcloud/occ config:system:set 'datadirectory'     --value '{{ nc_datadir }}'"
@@ -181,7 +183,8 @@
     mode:   0644
     force:  yes
     backup: yes
-  with_items: 
+  #with_items:  for Ansible >= v2.9
+  loop:
     - "/etc/php/{{ php_version }}/apache2/php.ini"
     - "/etc/php/{{ php_version }}/cli/php.ini" 
     - "/etc/php/{{ php_version }}/fpm/php.ini"
